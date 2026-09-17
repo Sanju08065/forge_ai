@@ -1,0 +1,69 @@
+version: 0.2
+
+# ForgeAI — CodeBuild buildspec
+# Triggered by: DevOps Agent via StartBuild API
+# Steps: install → typecheck → test → docker build → push to ECR → notify orchestrator
+
+env:
+  variables:
+    NODE_ENV: "test"
+  exported-variables:
+    - IMAGE_URI
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: "20"
+    commands:
+      - echo "=== ForgeAI Build Pipeline ==="
+      - echo "Project ID: $PROJECT_ID"
+      - echo "Build ID: $CODEBUILD_BUILD_ID"
+      - cd apps/api
+      - npm ci
+      - echo "Dependencies installed"
+
+  pre_build:
+    commands:
+      - echo "=== Pre-build: typecheck + tests ==="
+      - npm run typecheck
+      - npm test -- --forceExit --runInBand --coverage
+      - echo "All tests passed"
+      - echo "=== Logging in to Amazon ECR ==="
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:-build-$CODEBUILD_BUILD_NUMBER}
+      - echo "Image tag: $IMAGE_TAG"
+
+  build:
+    commands:
+      - echo "=== Build: Docker image ==="
+      - docker build -t $ECR_REPO_URI:$IMAGE_TAG -t $ECR_REPO_URI:latest .
+      - echo "Docker image built successfully"
+
+  post_build:
+    commands:
+      - echo "=== Post-build: push + notify ==="
+      - docker push $ECR_REPO_URI:$IMAGE_TAG
+      - docker push $ECR_REPO_URI:latest
+      - export IMAGE_URI=$ECR_REPO_URI:$IMAGE_TAG
+      - echo "Pushed $IMAGE_URI"
+      - |
+        if [ -n "$ORCHESTRATOR_URL" ] && [ -n "$PROJECT_ID" ]; then
+          echo "Notifying orchestrator..."
+          curl -sf -X POST "$ORCHESTRATOR_URL/api/v1/callbacks/build" \
+            -H "Content-Type: application/json" \
+            -d "{\"projectId\":\"$PROJECT_ID\",\"buildId\":\"$CODEBUILD_BUILD_ID\",\"status\":\"SUCCEEDED\",\"imageUri\":\"$IMAGE_URI\"}" \
+            && echo "Orchestrator notified" \
+            || echo "Warning: orchestrator notification failed (non-fatal)"
+        fi
+      - echo "=== Build complete ==="
+
+artifacts:
+  files:
+    - "**/*"
+  base-directory: apps/api/dist
+  name: forgeai-api-$(date +%Y%m%d-%H%M%S)
+
+cache:
+  paths:
+    - apps/api/node_modules/**/*

@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.env
+.env.*
+*.log
+README.md
+Dockerfile
+.dockerignore
+src/tests
+jest.config.js
+tsconfig.json

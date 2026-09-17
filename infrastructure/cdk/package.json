@@ -1,0 +1,30 @@
+{
+  "name": "@forgeai/cdk",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/bin/app.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "synth": "npx cdk synth",
+    "deploy": "npx cdk deploy --all --require-approval never",
+    "deploy:network": "npx cdk deploy ForgeAI-Network",
+    "deploy:data": "npx cdk deploy ForgeAI-Data",
+    "deploy:compute": "npx cdk deploy ForgeAI-Compute",
+    "deploy:pipeline": "npx cdk deploy ForgeAI-Pipeline",
+    "deploy:monitoring": "npx cdk deploy ForgeAI-Monitoring",
+    "diff": "npx cdk diff --all",
+    "destroy": "npx cdk destroy --all --force",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist cdk.out"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.140.0",
+    "constructs": "^10.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.0",
+    "aws-cdk": "^2.140.0",
+    "typescript": "^5.4.0"
+  }
+}
