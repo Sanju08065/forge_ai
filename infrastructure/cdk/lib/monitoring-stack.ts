@@ -83,11 +83,9 @@ export class MonitoringStack extends cdk.Stack {
 
     const ddbErrorAlarm = new cloudwatch.Alarm(this, 'DdbErrorAlarm', {
       alarmName: 'forgeai-dynamodb-errors',
-      alarmDescription: 'DynamoDB system errors detected',
-      metric: table.metricSystemErrorsForOperations({
-        period: cdk.Duration.minutes(5),
-      }),
-      threshold: 5,
+      alarmDescription: 'DynamoDB user errors detected',
+      metric: table.metricUserErrors({ period: cdk.Duration.minutes(5) }),
+      threshold: 10,
       evaluationPeriods: 1,
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,

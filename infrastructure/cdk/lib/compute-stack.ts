@@ -39,7 +39,7 @@ export class ComputeStack extends cdk.Stack {
       clusterName: 'forgeai',
       vpc,
       enableFargateCapacityProviders: true,
-      containerInsights: true,
+      containerInsightsV2: ecs.ContainerInsights.ENABLED,
     });
 
     // ── IAM roles ────────────────────────────────────────────────────────
@@ -302,6 +302,6 @@ export class ComputeStack extends cdk.Stack {
     });
     new cdk.CfnOutput(this, 'ClusterName', { value: this.cluster.clusterName, exportName: 'ForgeAI-ClusterName' });
     new cdk.CfnOutput(this, 'StateMachineArn', { value: this.stateMachine.stateMachineArn, exportName: 'ForgeAI-StateMachineArn' });
-    new cdk.CfnOutput(this, 'AppLogGroup', { value: appLogGroup.logGroupName, exportName: 'ForgeAI-AppLogGroup' });
+    new cdk.CfnOutput(this, 'AppLogGroupName', { value: appLogGroup.logGroupName, exportName: 'ForgeAI-AppLogGroup' });
   }
 }

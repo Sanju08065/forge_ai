@@ -34,7 +34,7 @@ export class NetworkStack extends cdk.Stack {
     this.albSecurityGroup = new ec2.SecurityGroup(this, 'AlbSG', {
       vpc: this.vpc,
       securityGroupName: 'forgeai-alb-sg',
-      description: 'ALB — allow inbound HTTP/HTTPS from internet',
+      description: 'ALB - allow inbound HTTP/HTTPS from internet',
     });
     this.albSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'HTTP');
     this.albSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'HTTPS');
@@ -43,7 +43,7 @@ export class NetworkStack extends cdk.Stack {
     this.appSecurityGroup = new ec2.SecurityGroup(this, 'AppSG', {
       vpc: this.vpc,
       securityGroupName: 'forgeai-app-sg',
-      description: 'App containers — allow traffic from ALB only',
+      description: 'App containers - allow traffic from ALB only',
     });
     this.appSecurityGroup.addIngressRule(
       this.albSecurityGroup,
@@ -55,7 +55,7 @@ export class NetworkStack extends cdk.Stack {
     this.serviceSecurityGroup = new ec2.SecurityGroup(this, 'ServiceSG', {
       vpc: this.vpc,
       securityGroupName: 'forgeai-service-sg',
-      description: 'Internal ForgeAI services — allow internal traffic',
+      description: 'Internal ForgeAI services - allow internal traffic',
     });
     this.serviceSecurityGroup.addIngressRule(
       this.serviceSecurityGroup,

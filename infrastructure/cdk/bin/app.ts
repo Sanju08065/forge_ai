@@ -33,7 +33,7 @@ const dataStack = new DataStack(app, 'ForgeAI-Data', {
   tags,
   description: 'ForgeAI — DynamoDB, S3, ECR, Secrets Manager',
 });
-dataStack.addDependency(networkStack);
+dataStack.addStackDependency(networkStack);
 
 // ── Layer 3: Compute ─────────────────────────────────────────────────────────
 const computeStack = new ComputeStack(app, 'ForgeAI-Compute', {
@@ -47,7 +47,7 @@ const computeStack = new ComputeStack(app, 'ForgeAI-Compute', {
   jwtSecret: dataStack.jwtSecret,
   eventBus: dataStack.eventBus,
 });
-computeStack.addDependency(dataStack);
+computeStack.addStackDependency(dataStack);
 
 // ── Layer 4: Pipeline ────────────────────────────────────────────────────────
 const pipelineStack = new PipelineStack(app, 'ForgeAI-Pipeline', {
@@ -62,7 +62,7 @@ const pipelineStack = new PipelineStack(app, 'ForgeAI-Pipeline', {
   table: dataStack.table,
   orchestratorUrl: computeStack.orchestratorServiceUrl,
 });
-pipelineStack.addDependency(computeStack);
+pipelineStack.addStackDependency(computeStack);
 
 // ── Layer 5: Monitoring ──────────────────────────────────────────────────────
 new MonitoringStack(app, 'ForgeAI-Monitoring', {
